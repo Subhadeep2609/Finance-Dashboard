@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Transaction } from '../types';
+import { useAuth } from './AuthContext';
 
 interface FinanceContextType {
   transactions: Transaction[];
@@ -15,22 +16,32 @@ interface FinanceContextType {
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
 export function FinanceProvider({ children }: { children: ReactNode }) {
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('finance_transactions');
+  const { user } = useAuth();
+  const storageKey = user ? `finance_transactions_${user.email}` : 'finance_transactions_guest';
+
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  // Load transactions when user changes
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        setTransactions(JSON.parse(saved));
       } catch (e) {
         console.error("Failed to parse transactions from local storage.");
+        setTransactions([]);
       }
+    } else {
+      setTransactions([]);
     }
-    return [];
-  });
+  }, [storageKey]);
 
   // Save to local storage whenever transactions change
-  React.useEffect(() => {
-    localStorage.setItem('finance_transactions', JSON.stringify(transactions));
-  }, [transactions]);
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(storageKey, JSON.stringify(transactions));
+    }
+  }, [transactions, storageKey, user]);
 
   const addTransaction = (t: Omit<Transaction, 'id'>) => {
     const newTx: Transaction = {
