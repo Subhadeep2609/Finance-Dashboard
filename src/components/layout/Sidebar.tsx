@@ -4,7 +4,12 @@ import { cn } from '../../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-export function Sidebar() {
+interface SidebarProps {
+  isMobileOpen?: boolean;
+  closeMobile?: () => void;
+}
+
+export function Sidebar({ isMobileOpen, closeMobile }: SidebarProps) {
   const location = useLocation();
   const { logout } = useAuth();
 
@@ -16,7 +21,10 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-card border-r border-slate-800 hidden lg:flex flex-col h-full">
+    <aside className={cn(
+      "w-64 bg-card border-r border-slate-800 flex flex-col h-full fixed lg:static top-0 left-0 z-50 transition-transform duration-300",
+      isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+    )}>
       <div className="h-20 flex items-center px-8 border-b border-slate-800">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
@@ -33,6 +41,7 @@ export function Sidebar() {
             <Link
               to={item.path}
               key={item.name}
+              onClick={closeMobile}
               className={cn(
                 "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium w-full",
                 isActive 

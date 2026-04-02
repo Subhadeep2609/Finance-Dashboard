@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, Search } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 
-export function Header() {
+export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuth();
 
   return (
@@ -17,17 +17,17 @@ export function Header() {
         />
       </div>
 
-      <div className="flex-1 md:hidden">
-        {/* Mobile Spacer */}
+      <div className="flex-1 md:hidden flex items-center pr-4">
+        <button 
+          onClick={onMenuClick}
+          className="text-textMuted hover:text-white transition-colors"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center space-x-4 md:space-x-6">
-        <button className="text-textMuted hover:text-textBase transition-colors relative">
-          <Bell className="w-6 h-6" />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-danger rounded-full"></span>
-        </button>
-        
+      <div className="flex items-center space-x-3 md:space-x-6">
         <div className="flex items-center space-x-3">
           <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-primary to-secondary p-[2px]">
             <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
