@@ -55,7 +55,7 @@ export function BreakdownChart() {
             <Tooltip 
               contentStyle={{ backgroundColor: '#161D2D', border: 'none', borderRadius: '8px', color: '#fff' }}
               itemStyle={{ color: '#F3F4F6' }}
-              formatter={(value: number) => `$${value}`}
+              formatter={(value: any) => `$${value}`}
             />
             <Legend verticalAlign="bottom" height={36} iconType="circle" />
           </PieChart>
