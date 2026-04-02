@@ -16,8 +16,17 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   };
 
   return (
-    <header className="h-20 border-b border-card bg-background/50 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10">
-      {/* Search */}
+    <header className="h-20 border-b border-card bg-background/50 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10 gap-4">
+      {/* Mobile Menu Button - Visible below lg (1024px) */}
+      <button 
+        onClick={onMenuClick}
+        className="lg:hidden text-textMuted hover:text-white transition-colors shrink-0"
+        title="Toggle Menu"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+
+      {/* Search - Hidden on mobile, visible on md (768px) and up */}
       <form 
         onSubmit={handleSearch}
         className="flex-1 max-w-md hidden md:flex items-center bg-card rounded-full px-4 py-2 border border-slate-800 focus-within:border-primary/50 transition-colors"
@@ -32,14 +41,8 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         />
       </form>
 
-      <div className="flex-1 md:hidden flex items-center pr-4">
-        <button 
-          onClick={onMenuClick}
-          className="text-textMuted hover:text-white transition-colors"
-        >
-          <Menu className="w-6 h-6" />
-        </button>
-      </div>
+      {/* Mobile Spacer (replaces the old flex-1 div) */}
+      <div className="flex-1 md:hidden"></div>
 
       {/* Right Controls */}
       <div className="flex items-center space-x-3 md:space-x-6">
