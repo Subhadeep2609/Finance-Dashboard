@@ -2,32 +2,39 @@ import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { X } from 'lucide-react';
 import { categories } from '../../data/mockData';
-import { TransactionType } from '../../types';
+import { TransactionType, Transaction } from '../../types';
 
 interface Props {
   onClose: () => void;
+  transactionToEdit?: Transaction | null;
 }
 
-export function TransactionForm({ onClose }: Props) {
-  const { addTransaction } = useFinance();
+export function TransactionForm({ onClose, transactionToEdit }: Props) {
+  const { addTransaction, editTransaction } = useFinance();
   
-  const [type, setType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(categories[0]);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [type, setType] = useState<TransactionType>(transactionToEdit?.type || 'expense');
+  const [amount, setAmount] = useState(transactionToEdit ? transactionToEdit.amount.toString() : '');
+  const [description, setDescription] = useState(transactionToEdit?.description || '');
+  const [category, setCategory] = useState(transactionToEdit?.category || categories[0]);
+  const [date, setDate] = useState(transactionToEdit?.date || new Date().toISOString().split('T')[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !description) return;
 
-    addTransaction({
+    const txData = {
       type,
       amount: parseFloat(amount),
       description,
       category,
       date,
-    });
+    };
+
+    if (transactionToEdit) {
+      editTransaction(transactionToEdit.id, txData);
+    } else {
+      addTransaction(txData);
+    }
     
     onClose();
   };
@@ -43,7 +50,9 @@ export function TransactionForm({ onClose }: Props) {
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-xl font-bold text-white mb-6">Add Transaction</h2>
+        <h2 className="text-xl font-bold text-white mb-6">
+          {transactionToEdit ? 'Edit Transaction' : 'Add Transaction'}
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           
@@ -122,7 +131,7 @@ export function TransactionForm({ onClose }: Props) {
             type="submit"
             className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-6"
           >
-            Save Transaction
+            {transactionToEdit ? 'Save Changes' : 'Save Transaction'}
           </button>
         </form>
       </div>

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { Plus, Search, Filter, Trash2, Download } from 'lucide-react';
+import { Plus, Search, Filter, Trash2, Download, Edit2 } from 'lucide-react';
 import { TransactionForm } from './TransactionForm';
+import { Transaction, TransactionType } from '../../types';
 import { format, parseISO } from 'date-fns';
 import { cn } from '../../lib/utils';
-import { TransactionType } from '../../types';
 
 export function TransactionList() {
   const { transactions, role, deleteTransaction } = useFinance();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<TransactionType | 'all'>('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const filteredTransactions = transactions.filter(t => {
     const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -83,7 +84,10 @@ export function TransactionList() {
           </button>
           {role === 'admin' && (
             <button 
-              onClick={() => setIsFormOpen(true)}
+              onClick={() => {
+                setEditingTransaction(null);
+                setIsFormOpen(true);
+              }}
               className="bg-primary hover:bg-primary/90 text-white p-2 rounded-lg transition-colors flex items-center justify-center shrink-0"
               title="Add Transaction"
             >
@@ -125,13 +129,25 @@ export function TransactionList() {
                   </td>
                   {role === 'admin' && (
                     <td className="px-6 py-4 text-right">
-                      <button 
-                        onClick={() => deleteTransaction(t.id)}
-                        className="text-textMuted hover:text-danger opacity-0 group-hover:opacity-100 transition-all focus:opacity-100"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-all focus-within:opacity-100">
+                        <button 
+                          onClick={() => {
+                            setEditingTransaction(t);
+                            setIsFormOpen(true);
+                          }}
+                          className="text-textMuted hover:text-textBase p-1"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => deleteTransaction(t.id)}
+                          className="text-textMuted hover:text-danger p-1"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   )}
                 </tr>
@@ -149,7 +165,13 @@ export function TransactionList() {
 
       {/* Modal Overlay */}
       {isFormOpen && (
-        <TransactionForm onClose={() => setIsFormOpen(false)} />
+        <TransactionForm 
+          onClose={() => {
+            setIsFormOpen(false);
+            setEditingTransaction(null);
+          }} 
+          transactionToEdit={editingTransaction}
+        />
       )}
     </div>
   );

@@ -4,7 +4,9 @@ import { initialTransactions } from '../data/mockData';
 
 interface FinanceContextType {
   transactions: Transaction[];
+  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
+  editTransaction: (id: string, t: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
   role: Role;
   setRole: (role: Role) => void;
@@ -44,6 +46,10 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     setTransactions(prev => [newTx, ...prev]);
   };
 
+  const editTransaction = (id: string, updatedT: Omit<Transaction, 'id'>) => {
+    setTransactions(prev => prev.map(t => t.id === id ? { ...updatedT, id } : t));
+  };
+
   const deleteTransaction = (id: string) => {
     setTransactions(prev => prev.filter(t => t.id !== id));
   };
@@ -65,7 +71,9 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   const value = {
     transactions,
+    setTransactions,
     addTransaction,
+    editTransaction,
     deleteTransaction,
     role,
     setRole,
