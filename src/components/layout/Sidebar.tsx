@@ -2,9 +2,11 @@ import React from 'react';
 import { LayoutDashboard, Receipt, PieChart, Settings, LogOut } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export function Sidebar() {
   const location = useLocation();
+  const { logout } = useAuth();
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -46,7 +48,10 @@ export function Sidebar() {
       </div>
 
       <div className="p-4 mt-auto">
-        <button className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium w-full text-textMuted hover:bg-danger/10 hover:text-danger">
+        <button 
+          onClick={logout}
+          className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium w-full text-textMuted hover:bg-danger/10 hover:text-danger"
+        >
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>

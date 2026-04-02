@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
-import { Transaction, Role } from '../types';
-import { initialTransactions } from '../data/mockData';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { Transaction } from '../types';
 
 interface FinanceContextType {
   transactions: Transaction[];
@@ -8,8 +7,6 @@ interface FinanceContextType {
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
   editTransaction: (id: string, t: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
-  role: Role;
-  setRole: (role: Role) => void;
   totalIncome: number;
   totalExpense: number;
   totalBalance: number;
@@ -27,10 +24,8 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         console.error("Failed to parse transactions from local storage.");
       }
     }
-    return initialTransactions;
+    return [];
   });
-
-  const [role, setRole] = useState<Role>('viewer');
 
   // Save to local storage whenever transactions change
   React.useEffect(() => {
@@ -54,20 +49,9 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     setTransactions(prev => prev.filter(t => t.id !== id));
   };
 
-  // derived metrics
-  const { totalIncome, totalExpense, totalBalance } = useMemo(() => {
-    let income = 0;
-    let expense = 0;
-    transactions.forEach(t => {
-      if (t.type === 'income') income += t.amount;
-      else expense += t.amount;
-    });
-    return {
-      totalIncome: income,
-      totalExpense: expense,
-      totalBalance: income - expense
-    };
-  }, [transactions]);
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+  const totalBalance = totalIncome - totalExpense;
 
   const value = {
     transactions,
@@ -75,8 +59,6 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     addTransaction,
     editTransaction,
     deleteTransaction,
-    role,
-    setRole,
     totalIncome,
     totalExpense,
     totalBalance

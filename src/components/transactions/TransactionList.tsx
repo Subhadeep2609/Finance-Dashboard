@@ -7,7 +7,7 @@ import { format, parseISO } from 'date-fns';
 import { cn } from '../../lib/utils';
 
 export function TransactionList() {
-  const { transactions, role, deleteTransaction } = useFinance();
+  const { transactions, deleteTransaction } = useFinance();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<TransactionType | 'all'>('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -82,7 +82,6 @@ export function TransactionList() {
           >
             <Download className="w-5 h-5" />
           </button>
-          {role === 'admin' && (
             <button 
               onClick={() => {
                 setEditingTransaction(null);
@@ -93,7 +92,6 @@ export function TransactionList() {
             >
               <Plus className="w-5 h-5" />
             </button>
-          )}
         </div>
       </div>
 
@@ -106,7 +104,7 @@ export function TransactionList() {
               <th className="px-6 py-4 font-medium">Description</th>
               <th className="px-6 py-4 font-medium">Category</th>
               <th className="px-6 py-4 font-medium">Amount</th>
-              {role === 'admin' && <th className="px-6 py-4 font-medium text-right">Actions</th>}
+              <th className="px-6 py-4 font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/50">
@@ -127,34 +125,32 @@ export function TransactionList() {
                   <td className={cn("px-6 py-4 font-medium whitespace-nowrap", t.type === 'income' ? 'text-secondary' : 'text-textBase')}>
                     {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                   </td>
-                  {role === 'admin' && (
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-all focus-within:opacity-100">
-                        <button 
-                          onClick={() => {
-                            setEditingTransaction(t);
-                            setIsFormOpen(true);
-                          }}
-                          className="text-textMuted hover:text-textBase p-1"
-                          title="Edit"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => deleteTransaction(t.id)}
-                          className="text-textMuted hover:text-danger p-1"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  )}
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-all focus-within:opacity-100">
+                      <button 
+                        onClick={() => {
+                          setEditingTransaction(t);
+                          setIsFormOpen(true);
+                        }}
+                        className="text-textMuted hover:text-textBase p-1"
+                        title="Edit"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => deleteTransaction(t.id)}
+                        className="text-textMuted hover:text-danger p-1"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={role === 'admin' ? 5 : 4} className="px-6 py-8 text-center text-textMuted">
+                <td colSpan={5} className="px-6 py-8 text-center text-textMuted">
                   No transactions found.
                 </td>
               </tr>

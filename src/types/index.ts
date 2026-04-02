@@ -9,7 +9,11 @@ export interface Transaction {
   description: string;
 }
 
-export type Role = 'viewer' | 'admin';
+export interface User {
+  name: string;
+  email: string;
+  financialGoal: string;
+}
 
 export interface DailySummary {
   date: string;

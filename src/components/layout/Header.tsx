@@ -1,10 +1,9 @@
 import React from 'react';
-import { useFinance } from '../../context/FinanceContext';
-import { Role } from '../../types';
-import { Bell, Search, Shield } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Bell, Search } from 'lucide-react';
 
 export function Header() {
-  const { role, setRole } = useFinance();
+  const { user } = useAuth();
 
   return (
     <header className="h-20 border-b border-card bg-background/50 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10">
@@ -29,23 +28,17 @@ export function Header() {
           <span className="absolute top-0 right-0 w-2 h-2 bg-danger rounded-full"></span>
         </button>
         
-        {/* Role Toggle Dropdown (Mocked as simple select for now) */}
-        <div className="flex items-center space-x-2 bg-card rounded-lg p-1 border border-slate-800">
-          <Shield className="w-4 h-4 text-primary ml-2 hidden sm:block" />
-          <select 
-            value={role} 
-            onChange={(e) => setRole(e.target.value as Role)}
-            className="bg-transparent border-none text-sm font-medium outline-none cursor-pointer p-1 text-textBase"
-          >
-            <option value="viewer" className="bg-card">Viewer</option>
-            <option value="admin" className="bg-card">Admin</option>
-          </select>
-        </div>
-
-        {/* User profile */}
-        <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-primary to-secondary p-[2px]">
-          <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-            <span className="font-bold text-sm">US</span>
+        <div className="flex items-center space-x-3">
+          <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-primary to-secondary p-[2px]">
+            <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
+              <span className="font-bold text-sm text-white">
+                {user?.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          </div>
+          <div className="hidden sm:block text-sm">
+            <p className="font-medium text-white">{user?.name}</p>
+            <p className="text-xs text-textMuted">{user?.financialGoal || 'No goal set'}</p>
           </div>
         </div>
       </div>
