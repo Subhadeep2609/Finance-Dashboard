@@ -1,9 +1,16 @@
+import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { initialTransactions } from '../data/mockData';
-import { Trash2, RefreshCcw } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Trash2, User as UserIcon, Check } from 'lucide-react';
 
 export function SettingsPage() {
-  const { setTransactions } = useFinance(); // We need to expose this from context first
+  const { setTransactions } = useFinance();
+  const { user, login } = useAuth();
+  
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [financialGoal, setFinancialGoal] = useState(user?.financialGoal || '');
+  const [saveMessage, setSaveMessage] = useState('');
 
   const handleWipeData = () => {
     if (confirm("Are you sure you want to delete all transactions? This cannot be undone.")) {
@@ -11,9 +18,12 @@ export function SettingsPage() {
     }
   };
 
-  const handleResetDemo = () => {
-    if (confirm("Reset application to initial demo data?")) {
-      setTransactions(initialTransactions);
+  const handleUpdateProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name && email) {
+      login({ name, email, financialGoal });
+      setSaveMessage('Profile Settings Saved!');
+      setTimeout(() => setSaveMessage(''), 3000);
     }
   };
 
@@ -26,35 +36,75 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <div className="bg-card border border-slate-800 rounded-2xl p-6 shadow-sm max-w-2xl">
-        <h3 className="text-lg font-semibold text-white mb-4">Data Management</h3>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-background border border-slate-800 rounded-xl">
-            <div>
-              <p className="font-medium text-white">Reset Demo Data</p>
-              <p className="text-sm text-textMuted mt-1">Restore the original sample transactions.</p>
-            </div>
-            <button 
-              onClick={handleResetDemo}
-              className="bg-secondary/10 text-secondary hover:bg-secondary/20 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-            >
-              <RefreshCcw className="w-4 h-4" />
-              Reset
-            </button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Profile Settings */}
+        <div className="bg-card border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center space-x-3 mb-6">
+            <UserIcon className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-semibold text-white">Profile Settings</h3>
           </div>
+          
+          <form onSubmit={handleUpdateProfile} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-textMuted">Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="w-full bg-background border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-primary focus:outline-none transition-colors"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-textMuted">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="w-full bg-background border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-primary focus:outline-none transition-colors"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-textMuted">Financial Goal</label>
+              <input
+                type="text"
+                value={financialGoal}
+                onChange={e => setFinancialGoal(e.target.value)}
+                className="w-full bg-background border border-slate-800 rounded-xl px-4 py-3 text-white focus:border-primary focus:outline-none transition-colors"
+              />
+            </div>
 
-          <div className="flex items-center justify-between p-4 bg-background border border-danger/30 rounded-xl">
-            <div>
-              <p className="font-medium text-white">Wipe All Data</p>
-              <p className="text-sm text-textMuted mt-1">Permanently delete all transactions from local storage.</p>
+            <button 
+              type="submit"
+              className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full flex items-center justify-center space-x-2 mt-4"
+            >
+              <span>Update Profile</span>
+              {saveMessage && <Check className="w-4 h-4 ml-1" />}
+            </button>
+            {saveMessage && <p className="text-primary text-xs text-center mt-2 animate-in fade-in">{saveMessage}</p>}
+          </form>
+        </div>
+
+        {/* Data Management Settings */}
+        <div className="bg-card border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center space-x-3 mb-6">
+            <Trash2 className="w-5 h-5 text-danger" />
+            <h3 className="text-lg font-semibold text-white">Data Management</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-background border border-danger/30 rounded-xl">
+              <div>
+                <p className="font-medium text-white">Wipe All Data</p>
+                <p className="text-sm text-textMuted mt-1">Permanently delete all transactions from your account. This action cannot be undone.</p>
+              </div>
             </div>
             <button 
               onClick={handleWipeData}
-              className="bg-danger/10 text-danger hover:bg-danger/20 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              className="bg-danger/10 text-danger hover:bg-danger hover:text-white px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full break-normal"
             >
-              <Trash2 className="w-4 h-4" />
-              Wipe
+              Wipe Clean
             </button>
           </div>
         </div>

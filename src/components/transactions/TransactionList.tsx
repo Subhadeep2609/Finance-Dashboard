@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { Plus, Search, Filter, Trash2, Download, Edit2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { TransactionForm } from './TransactionForm';
 import { Transaction, TransactionType } from '../../types';
 import { format, parseISO } from 'date-fns';
@@ -8,10 +9,30 @@ import { cn } from '../../lib/utils';
 
 export function TransactionList() {
   const { transactions, deleteTransaction } = useFinance();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+  
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [filterType, setFilterType] = useState<TransactionType | 'all'>('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
+  // Sync searchTerm with URL if it changes, or if URL changes
+  React.useEffect(() => {
+    const q = searchParams.get('search') || '';
+    if (q !== searchTerm) {
+      setSearchTerm(q);
+    }
+  }, [searchParams]);
+
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
+    if (val) {
+      setSearchParams({ search: val });
+    } else {
+      setSearchParams({});
+    }
+  };
 
   const filteredTransactions = transactions.filter(t => {
     const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -59,7 +80,7 @@ export function TransactionList() {
               type="text" 
               placeholder="Search..." 
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="bg-background border border-slate-800 text-sm rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:border-primary/50 transition-colors w-full sm:w-48"
             />
           </div>
