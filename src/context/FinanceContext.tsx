@@ -16,8 +16,24 @@ interface FinanceContextType {
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
 export function FinanceProvider({ children }: { children: ReactNode }) {
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const saved = localStorage.getItem('finance_transactions');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse transactions from local storage.");
+      }
+    }
+    return initialTransactions;
+  });
+
   const [role, setRole] = useState<Role>('viewer');
+
+  // Save to local storage whenever transactions change
+  React.useEffect(() => {
+    localStorage.setItem('finance_transactions', JSON.stringify(transactions));
+  }, [transactions]);
 
   const addTransaction = (t: Omit<Transaction, 'id'>) => {
     const newTx: Transaction = {

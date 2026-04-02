@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { Plus, Search, Filter, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, Trash2, Download } from 'lucide-react';
 import { TransactionForm } from './TransactionForm';
 import { format, parseISO } from 'date-fns';
 import { cn } from '../../lib/utils';
@@ -21,6 +21,26 @@ export function TransactionList() {
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Date', 'Description', 'Category', 'Type', 'Amount'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredTransactions.map(t => 
+        `"${t.date}","${t.description}","${t.category}","${t.type}","${t.amount}"`
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'transactions.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -54,6 +74,13 @@ export function TransactionList() {
               <option value="expense">Expense</option>
             </select>
           </div>
+          <button 
+            onClick={handleExportCSV}
+            className="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-lg transition-colors flex items-center justify-center shrink-0"
+            title="Export CSV"
+          >
+            <Download className="w-5 h-5" />
+          </button>
           {role === 'admin' && (
             <button 
               onClick={() => setIsFormOpen(true)}
