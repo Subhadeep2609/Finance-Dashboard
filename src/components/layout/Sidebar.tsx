@@ -1,13 +1,16 @@
 import React from 'react';
 import { LayoutDashboard, Receipt, PieChart, Settings, LogOut } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { Link, useLocation } from 'react-router-dom';
 
 export function Sidebar() {
+  const location = useLocation();
+
   const navItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, active: true },
-    { name: 'Transactions', icon: Receipt, active: false },
-    { name: 'Insights', icon: PieChart, active: false },
-    { name: 'Settings', icon: Settings, active: false },
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { name: 'Transactions', icon: Receipt, path: '/transactions' },
+    { name: 'Insights', icon: PieChart, path: '/insights' },
+    { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
   return (
@@ -22,20 +25,24 @@ export function Sidebar() {
       </div>
       
       <div className="flex-1 py-8 px-4 flex flex-col space-y-2">
-        {navItems.map((item) => (
-          <button
-            key={item.name}
-            className={cn(
-              "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium w-full",
-              item.active 
-                ? "bg-primary/10 text-primary" 
-                : "text-textMuted hover:bg-slate-800/50 hover:text-textBase"
-            )}
-          >
-            <item.icon className="w-5 h-5" />
-            <span>{item.name}</span>
-          </button>
-        ))}
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+          return (
+            <Link
+              to={item.path}
+              key={item.name}
+              className={cn(
+                "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium w-full",
+                isActive 
+                  ? "bg-primary/10 text-primary" 
+                  : "text-textMuted hover:bg-slate-800/50 hover:text-textBase"
+              )}
+            >
+              <item.icon className="w-5 h-5" />
+              <span>{item.name}</span>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="p-4 mt-auto">
